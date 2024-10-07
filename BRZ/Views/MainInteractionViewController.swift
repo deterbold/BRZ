@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import AVFoundation
 
 class MainInteractionViewController: UIViewController {
 
@@ -22,7 +21,10 @@ class MainInteractionViewController: UIViewController {
 
     // Labels
     let inhaleExhaleLabel = UILabel()
-    var inhaleExhaleCounter = 0
+    var inhaleExhaleCycleCount = 0
+    var isInhaleExhaleRunning = false
+    var flashTimer: Timer?
+    var exhaleTimer: Timer?
 
     // Timer and interaction properties
     var timer: Timer?
@@ -34,17 +36,12 @@ class MainInteractionViewController: UIViewController {
     var hasTriggeredStrongHapticFeedback = false
 
     // Sound management
-    var backgroundPlayer: AVAudioPlayer?
     var isSoundOn: Bool = true
-
-    // Shake count to manage two shakes for adding top rectangle
-    var shakeCountAfterTopRectangleRemoved: Int = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupGestures()
-        setupNavigationBar()
         initializeBackgroundSound()
     }
 
@@ -57,18 +54,23 @@ class MainInteractionViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        backgroundPlayer?.stop()
+        // Stop background sound
+        SoundManager.shared.stopSound(named: "background", withExtension: "flac")
     }
 
     func setupUI() {
         // Set background color
         view.backgroundColor = .black
 
+        // Set up the navigation bar with a sound toggle button
+        setupNavigationBar()
+
         // Configure inhale/exhale label
         inhaleExhaleLabel.text = "INHALE"
         inhaleExhaleLabel.textColor = .gray
         inhaleExhaleLabel.font = UIFont.systemFont(ofSize: 24)
         inhaleExhaleLabel.translatesAutoresizingMaskIntoConstraints = false
+        inhaleExhaleLabel.isHidden = false // Show "INHALE" on load
         view.addSubview(inhaleExhaleLabel)
 
         // Position inhale/exhale label
@@ -128,32 +130,20 @@ class MainInteractionViewController: UIViewController {
     func updateSound() {
         if isSoundOn {
             // Play background sound
-            backgroundPlayer?.play()
+            SoundManager.shared.playSound(named: "background", withExtension: "flac", loop: true)
             // Update sound button icon
             navigationItem.rightBarButtonItem?.image = UIImage(systemName: "speaker.fill")
         } else {
-            // Pause background sound
-            backgroundPlayer?.pause()
+            // Stop background sound
+            SoundManager.shared.stopSound(named: "background", withExtension: "flac")
             // Update sound button icon
             navigationItem.rightBarButtonItem?.image = UIImage(systemName: "speaker.slash.fill")
         }
     }
 
     func initializeBackgroundSound() {
-        guard let soundURL = Bundle.main.url(forResource: "background", withExtension: "flac") else {
-            print("Unable to find background.flac")
-            return
-        }
-
-        do {
-            backgroundPlayer = try AVAudioPlayer(contentsOf: soundURL)
-            backgroundPlayer?.numberOfLoops = -1 // Loop indefinitely
-            backgroundPlayer?.prepareToPlay()
-            if isSoundOn {
-                backgroundPlayer?.play()
-            }
-        } catch {
-            print("Unable to play background.flac: \(error)")
+        if isSoundOn {
+            SoundManager.shared.playSound(named: "background", withExtension: "flac", loop: true)
         }
     }
 
@@ -185,7 +175,7 @@ class MainInteractionViewController: UIViewController {
             newTopRectangle.widthAnchor.constraint(equalToConstant: 50)
         ])
         // Top rectangle height constraint (will be updated dynamically)
-        topRectangleHeightConstraint = newTopRectangle.heightAnchor.constraint(equalToConstant: 10)
+        topRectangleHeightConstraint = newTopRectangle.heightAnchor.constraint(equalToConstant: 5)
         topRectangleHeightConstraint?.isActive = true
 
         // Top rectangle bottom constraint (to be updated as middle rectangle height changes)
@@ -199,10 +189,6 @@ class MainInteractionViewController: UIViewController {
         touchDownGesture.minimumPressDuration = 0
         touchDownGesture.delegate = self
         view.addGestureRecognizer(touchDownGesture)
-
-        // Remove double-tap gesture recognizer if it exists
-        // (Assuming previous code had a double-tap gesture; ensure it's removed)
-        // Since in current implementation, double-tap is not added, no action needed here
     }
 
     // Enable shake detection
@@ -221,7 +207,6 @@ class MainInteractionViewController: UIViewController {
         if let topRect = topRectangle {
             // Play "taps.wav" when removing the top rectangle
             SoundManager.shared.playSound(named: "taps", withExtension: "wav")
-
             // Remove top rectangle with animation
             UIView.animate(withDuration: 0.5, animations: {
                 topRect.transform = CGAffineTransform(translationX: 0, y: self.view.bounds.height)
@@ -236,24 +221,16 @@ class MainInteractionViewController: UIViewController {
                 topRect.removeFromSuperview()
                 self.topRectangle = nil
 
-                // Reset shake count
-                self.shakeCountAfterTopRectangleRemoved = 0
+                // Immediately create a new top rectangle with height 5 pixels
+                self.addTopRectangle()
+                self.topRectangleHeightConstraint?.constant = 5
+                self.view.layoutIfNeeded()
             })
         } else {
-            // Increment shake count
-            shakeCountAfterTopRectangleRemoved += 1
-
-            if shakeCountAfterTopRectangleRemoved >= 1 {
-                // Add a new top rectangle with height 0
-                addTopRectangle()
-                topRectangleHeightConstraint?.constant = 0
-                UIView.animate(withDuration: 0.1) {
-                    self.view.layoutIfNeeded()
-                }
-
-                // Reset shake count
-                shakeCountAfterTopRectangleRemoved = 0
-            }
+            // No top rectangle exists, create one with height 5 pixels
+            addTopRectangle()
+            topRectangleHeightConstraint?.constant = 5
+            view.layoutIfNeeded()
         }
     }
 
@@ -261,6 +238,10 @@ class MainInteractionViewController: UIViewController {
         if gesture.state == .began {
             // Start updating the heights
             startUpdatingHeights()
+
+            // Cancel any pending exhale timer
+            exhaleTimer?.invalidate()
+            exhaleTimer = nil
 
             // Record tap start time
             tapStartTime = Date()
@@ -271,16 +252,10 @@ class MainInteractionViewController: UIViewController {
             generator.prepare()
             generator.impactOccurred()
 
-            // Hide inhale/exhale label
-            inhaleExhaleLabel.isHidden = true
-
-            // Handle inhale/exhale text for first two taps
-            if inhaleExhaleCounter < 2 {
-                inhaleExhaleCounter += 1
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self.inhaleExhaleLabel.text = "EXHALE"
-                    self.inhaleExhaleLabel.isHidden = false
-                }
+            // Start inhale-exhale cycle if not already running and cycle count is less than 2
+            if inhaleExhaleCycleCount < 2 && !isInhaleExhaleRunning {
+                isInhaleExhaleRunning = true
+                startInhaleExhaleCycle()
             }
         } else if gesture.state == .ended || gesture.state == .cancelled {
             // Stop updating the heights
@@ -290,10 +265,24 @@ class MainInteractionViewController: UIViewController {
             tapStartTime = nil
             hasTriggeredStrongHapticFeedback = false
 
-            // Hide inhale/exhale label after exhale
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.inhaleExhaleLabel.isHidden = true
+            // Schedule hiding of "EXHALE" and showing of "INHALE" after 0.5 seconds
+            exhaleTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                if self.isInhaleExhaleRunning {
+                    self.inhaleExhaleLabel.isHidden = false
+                    self.inhaleExhaleLabel.text = "INHALE"
+                    self.inhaleExhaleCycleCount += 1
+                    if self.inhaleExhaleCycleCount < 2 {
+                        self.isInhaleExhaleRunning = false
+                        // The user can start pressing again to repeat the cycle
+                    } else {
+                        // After the second cycle, hide the label
+                        self.inhaleExhaleLabel.isHidden = true
+                        self.isInhaleExhaleRunning = false
+                    }
+                }
+                self.exhaleTimer = nil
             }
+            RunLoop.current.add(exhaleTimer!, forMode: .common)
         }
     }
 
@@ -366,11 +355,47 @@ class MainInteractionViewController: UIViewController {
         }
     }
 
+    func startInhaleExhaleCycle() {
+        inhaleExhaleLabel.text = "INHALE"
+        inhaleExhaleLabel.isHidden = false
+        // Start flashing the "INHALE" text for 2 seconds
+        flashLabel(for: 2.0) {
+            // After flashing, ensure label is visible
+            self.inhaleExhaleLabel.isHidden = false
+            // Change text to "EXHALE"
+            self.inhaleExhaleLabel.text = "EXHALE"
+            // "EXHALE" remains on screen while user continues pressing
+        }
+    }
+
+    func flashLabel(for duration: TimeInterval, completion: @escaping () -> Void) {
+        let flashInterval = 0.3
+        let totalFlashes = Int(duration / flashInterval)
+        var flashCount = 0
+
+        flashTimer = Timer.scheduledTimer(withTimeInterval: flashInterval, repeats: true) { timer in
+            self.inhaleExhaleLabel.isHidden.toggle()
+            flashCount += 1
+            if flashCount >= totalFlashes {
+                timer.invalidate()
+                self.flashTimer = nil
+                // Ensure the label is visible
+                self.inhaleExhaleLabel.isHidden = false
+                completion()
+            }
+        }
+        // Ensure the timer runs even if there's scrolling or UI updates
+        RunLoop.current.add(flashTimer!, forMode: .common)
+    }
+
     func removeRectanglesAndShowNamaste() {
         // Remove rectangles from the view
         bottomRectangle.removeFromSuperview()
         middleRectangle.removeFromSuperview()
         topRectangle?.removeFromSuperview()
+
+        // Stop all sounds
+        SoundManager.shared.stopAllSounds()
 
         // Show "NAMASTE" label
         let namasteLabel = UILabel()
@@ -393,7 +418,7 @@ class MainInteractionViewController: UIViewController {
     }
 }
 
-// Conform to UIGestureRecognizerDelegate to handle gesture recognition alongside other UI elements
+// Conform to UIGestureRecognizerDelegate to handle gesture recognition alongside other interactive elements
 extension MainInteractionViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         // Avoid interfering with other interactive elements (e.g., navigation bar buttons)
@@ -403,7 +428,3 @@ extension MainInteractionViewController: UIGestureRecognizerDelegate {
         return true
     }
 }
-
-
-
-

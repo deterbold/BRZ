@@ -10,9 +10,22 @@
 		4202E2312CA8AD4600F2B826 /* BRZ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BRZ.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		42F9F4182CB05F6D007C6A6D /* Exceptions for "BRZ" folder in "BRZ" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4202E2302CA8AD4600F2B826 /* BRZ */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4202E2332CA8AD4600F2B826 /* BRZ */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				42F9F4182CB05F6D007C6A6D /* Exceptions for "BRZ" folder in "BRZ" target */,
+			);
 			path = BRZ;
 			sourceTree = "<group>";
 		};

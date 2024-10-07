@@ -21,53 +21,11 @@
             background-color: transparent; /* Set background to transparent */
             text-align: center;
         }
-
-        h1, h2, p, li {
-            text-shadow: 0 1px 2px rgba(0,0,0,0.15);
-        }
-
-        /* Visual Effect: Text Shine */
-        .shine-effect {
-            background: linear-gradient(90deg, #154E48, #ffffff, #154E48);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 3s linear infinite;
-        }
-
-        @keyframes shine {
-            from {
-                background-position: -500px;
-            }
-            to {
-                background-position: 500px;
-            }
-        }
-
-        /* Visual Effect: Reflection */
-        .reflection {
-            position: relative;
-        }
-
-        .reflection::after {
-            content: attr(data-text);
-            position: absolute;
-            left: 0;
-            top: 100%;
-            width: 100%;
-            height: 100%;
-            transform: scaleY(-1);
-            opacity: 0.3;
-            background: linear-gradient(transparent, white);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
     </style>
 </head>
 <body>
-    <h1 class="shine-effect">Welcome to RelaxApp!</h1>
-    <p class="reflection" data-text="This app helps you relax through simple interactions.">
-        This app helps you relax through simple interactions.
-    </p>
+    <h1>Welcome to RelaxApp!</h1>
+    <p>This app helps you relax through simple interactions.</p>
     <h2>Instructions:</h2>
     <ol>
         <li>Press and hold the button on the next screen.</li>
