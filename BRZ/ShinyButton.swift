@@ -1,5 +1,5 @@
 //
-//  CrossedButton.swift
+//  ShinyButton.swift
 //  BRZ
 //
 //  Created by Miguel Sicart on 29/09/2024.
@@ -32,8 +32,8 @@ class ShinyButton: UIButton {
         // Set background color
         self.backgroundColor = UIColor(red: 246/255, green: 200/255, blue: 131/255, alpha: 1)
         
-        // Set title color and font
-        self.setTitleColor(UIColor.black, for: .normal)
+        // Set title color and font - darker text for better legibility
+        self.setTitleColor(UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1), for: .normal)
         self.titleLabel?.font = UIFont(name: "Futura-Bold", size: 22)
     }
     
@@ -72,6 +72,3 @@ class ShinyButton: UIButton {
         shineLayer.add(shineAnimation, forKey: "shineAnimation")
     }
 }
-
-
-

@@ -5,378 +5,356 @@
 //  Created by Miguel Sicart on 28/09/2024.
 //
 
-//import UIKit
-//import WebKit
-//
-//class IntroductionViewController: UIViewController {
-//
-//    var webView: WKWebView!
-//    var startButton: UIButton!
-//    var backgroundImageView: UIImageView!
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        setupUI()
-//        observeAccessibilityChanges()
-//    }
-//
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        startBackgroundImageRotation()
-//    }
-//
-//    override func viewWillDisappear(_ animated: Bool) {
-//        super.viewWillDisappear(animated)
-//        stopBackgroundImageRotation()
-//    }
-//
-//    func setupUI() {
-//        // Set up the background image view
-//        backgroundImageView = UIImageView(image: UIImage(named: "backgroundImage"))
-//        backgroundImageView.contentMode = .scaleAspectFill
-//        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
-//
-//        // Add the background image view
-//        view.addSubview(backgroundImageView)
-//        view.sendSubviewToBack(backgroundImageView)
-//
-//        // Set up constraints for the background image view
-//        NSLayoutConstraint.activate([
-//            backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-//            backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-//            backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
-//            backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-//        ])
-//
-//        // Initialize WKWebView
-//        webView = WKWebView()
-//        webView.translatesAutoresizingMaskIntoConstraints = false
-//        webView.backgroundColor = .clear
-//        webView.isOpaque = false
-//
-//        // Load HTML content directly from the file URL
-//        if let htmlURL = Bundle.main.url(forResource: "instructions", withExtension: "html") {
-//            webView.loadFileURL(htmlURL, allowingReadAccessTo: htmlURL.deletingLastPathComponent())
-//        } else {
-//            print("HTML file not found")
-//        }
-//
-//        // Initialize the Start button
-//        startButton = UIButton(type: .system)
-//        startButton.setTitle("START", for: .normal)
-//        startButton.setTitleColor(.yellow, for: .normal)
-//        startButton.backgroundColor = .black
-//        startButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20) // Bold text
-//        startButton.layer.cornerRadius = 10 // Rounded corners
-//        startButton.clipsToBounds = true // Clip to bounds to apply corner radius
-//
-//        startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
-//        startButton.translatesAutoresizingMaskIntoConstraints = false
-//
-//        // Accessibility settings
-//        startButton.accessibilityLabel = "Start"
-//        startButton.accessibilityHint = "Double-tap to begin your relaxation journey."
-//
-//        // Add subviews
-//        view.addSubview(webView)
-//        view.addSubview(startButton)
-//
-//        // Set up constraints
-//
-//        // WebView constraints
-//        NSLayoutConstraint.activate([
-//            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-//            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-//            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-//            webView.bottomAnchor.constraint(equalTo: startButton.topAnchor, constant: -20)
-//        ])
-//
-//        // StartButton constraints
-//        NSLayoutConstraint.activate([
-//            startButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -120),
-//            startButton.widthAnchor.constraint(equalToConstant: 120),
-//            startButton.heightAnchor.constraint(equalToConstant: 50)
-//        ])
-//    }
-//
-//    @objc func startButtonTapped() {
-//        let mainVC = MainInteractionViewController()
-//        navigationController?.pushViewController(mainVC, animated: true)
-//    }
-//
-//    func startBackgroundImageRotation() {
-//        guard !UIAccessibility.isReduceMotionEnabled else {
-//            // Do not start the animation if Reduce Motion is enabled
-//            return
-//        }
-//
-//        // Check if the animation is already added
-//        if backgroundImageView.layer.animation(forKey: "rotationAnimation") == nil {
-//            // Create rotation animation
-//            let rotation = CABasicAnimation(keyPath: "transform.rotation")
-//            rotation.fromValue = 0
-//            rotation.toValue = CGFloat.pi * 2 // 360 degrees in radians
-//            rotation.duration = 30.0 // Adjust duration for rotation speed
-//            rotation.repeatCount = .infinity
-//
-//            // Add animation to the background image view's layer
-//            backgroundImageView.layer.add(rotation, forKey: "rotationAnimation")
-//        }
-//    }
-//
-//    func stopBackgroundImageRotation() {
-//        // Remove the rotation animation
-//        backgroundImageView.layer.removeAnimation(forKey: "rotationAnimation")
-//    }
-//
-//    func observeAccessibilityChanges() {
-//        NotificationCenter.default.addObserver(
-//            self,
-//            selector: #selector(accessibilitySettingsChanged),
-//            name: UIAccessibility.reduceMotionStatusDidChangeNotification,
-//            object: nil
-//        )
-//    }
-//
-//    @objc func accessibilitySettingsChanged() {
-//        if UIAccessibility.isReduceMotionEnabled {
-//            // Remove animation
-//            stopBackgroundImageRotation()
-//        } else {
-//            // Start animation
-//            startBackgroundImageRotation()
-//        }
-//    }
-//
-//    deinit {
-//        NotificationCenter.default.removeObserver(self, name: UIAccessibility.reduceMotionStatusDidChangeNotification, object: nil)
-//    }
-//}
 import UIKit
 
 class IntroductionViewController: UIViewController {
-
-    var startButton: UIButton!
-    var backgroundImageView: UIImageView!
-    var scrollView: UIScrollView!
-    var contentView: UIView!
-
+    
+    // MARK: - UI Components
+    private var textContainerView: UIView!
+    private var textLabel: UILabel!
+    private var startButton: ShinyButton!
+    private var tutorialButton: ShinyButton!
+    private var aboutButton: ShinyButton!
+    private var backgroundImageView: UIImageView!
+    private var blurEffectView: UIVisualEffectView!
+    
+    // MARK: - Constants
+    private struct Constants {
+        static let backgroundAlpha: CGFloat = 0.8
+        static let rotationDuration: TimeInterval = 30.0
+        
+        // Responsive margins and spacing
+        static let minButtonBottomMargin: CGFloat = 20
+        static let buttonSpacingMultiplier: CGFloat = 0.02 // 2% of screen width
+        static let minButtonSpacing: CGFloat = 8
+        static let maxButtonSpacing: CGFloat = 30
+        
+        // Responsive button sizing
+        static let buttonWidthMultiplier: CGFloat = 0.22 // 22% of screen width
+        static let minButtonWidth: CGFloat = 80
+        static let maxButtonWidth: CGFloat = 120
+        static let buttonHeightMultiplier: CGFloat = 0.06 // 6% of screen height
+        static let minButtonHeight: CGFloat = 44
+        static let maxButtonHeight: CGFloat = 60
+        
+        // Responsive text container
+        static let textContainerHorizontalMarginMultiplier: CGFloat = 0.05 // 5% of screen width
+        static let minTextContainerMargin: CGFloat = 16
+        static let maxTextContainerMargin: CGFloat = 40
+        static let textContainerTopMarginMultiplier: CGFloat = 0.05 // 5% of screen height
+        static let minTextContainerTopMargin: CGFloat = 20
+        static let maxTextContainerTopMargin: CGFloat = 60
+        static let textContainerBottomSpacingMultiplier: CGFloat = 0.05 // 5% of screen height
+        static let minTextContainerBottomSpacing: CGFloat = 20
+        
+        // Container styling
+        static let textContainerAlpha: CGFloat = 0.7
+        static let textContainerCornerRadius: CGFloat = 12
+        static let textContainerPaddingMultiplier: CGFloat = 0.04 // 4% of screen width
+        static let minTextContainerPadding: CGFloat = 16
+        static let maxTextContainerPadding: CGFloat = 24
+        
+        // Assets
+        static let backgroundImageName = "backgroundImage"
+        static let rotationAnimationKey = "rotationAnimation"
+        
+        static let instructionText = """
+        Welcome to Chimney of Wisdom, your personal breathing and relaxation companion.
+        
+        • Tap and hold anywhere on the screen to begin your breathing exercise
+        • Watch the rectangles respond to your touch
+        • Shake your device to add or remove elements
+        • Let the gentle sounds guide your practice
+        
+        Find a comfortable position and prepare to breathe mindfully.
+        """
+    }
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         observeAccessibilityChanges()
     }
-
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateConstraintsForCurrentSize()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         startBackgroundImageRotation()
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopBackgroundImageRotation()
     }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Actions
+    @objc func startButtonTapped() {
+        let mainViewController = MainInteractionViewController()
+        navigationController?.pushViewController(mainViewController, animated: true)
+    }
+    
+    @objc func tutorialButtonTapped() {
+        let tutorialViewController = TutorialViewController()
+        navigationController?.pushViewController(tutorialViewController, animated: true)
+    }
+    
+    @objc func aboutButtonTapped() {
+        let scienceViewController = ScienceViewController()
+        navigationController?.pushViewController(scienceViewController, animated: true)
+    }
+}
 
+// MARK: - UI Setup
+private extension IntroductionViewController {
+    
     func setupUI() {
-        // Set up the background image view
-        backgroundImageView = UIImageView(image: UIImage(named: "backgroundImage"))
+        setupBackgroundImageView()
+        setupBlurEffect()
+        setupTextContainer()
+        setupButtons()
+        setupConstraints()
+    }
+    
+    func setupBackgroundImageView() {
+        backgroundImageView = UIImageView(image: UIImage(named: Constants.backgroundImageName))
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
-
-        // Add the background image view
+        backgroundImageView.alpha = Constants.backgroundAlpha
+        
         view.addSubview(backgroundImageView)
         view.sendSubviewToBack(backgroundImageView)
-
-        // Set up constraints for the background image view
+    }
+    
+    func setupBlurEffect() {
+        let blurEffect = UIBlurEffect(style: .light)
+        blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(blurEffectView)
+        view.sendSubviewToBack(blurEffectView)
+    }
+    
+    func setupTextContainer() {
+        // Container view with semi-translucent background
+        textContainerView = UIView()
+        textContainerView.backgroundColor = UIColor.black.withAlphaComponent(Constants.textContainerAlpha)
+        textContainerView.layer.cornerRadius = Constants.textContainerCornerRadius
+        textContainerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Text label
+        textLabel = UILabel()
+        textLabel.text = Constants.instructionText
+        textLabel.textColor = .white
+        textLabel.font = UIFont.preferredFont(forTextStyle: .body) // Use Dynamic Type
+        textLabel.adjustsFontForContentSizeCategory = true // Support accessibility text sizing
+        textLabel.numberOfLines = 0
+        textLabel.textAlignment = .left
+        textLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        textContainerView.addSubview(textLabel)
+        view.addSubview(textContainerView)
+    }
+    
+    func setupButtons() {
+        // Start Button
+        startButton = ShinyButton(type: .system)
+        startButton.setTitle("START", for: .normal)
+        startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
+        startButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Accessibility
+        startButton.accessibilityLabel = "Start"
+        startButton.accessibilityHint = "Double-tap to begin your relaxation journey."
+        
+        // Tutorial Button
+        tutorialButton = ShinyButton(type: .system)
+        tutorialButton.setTitle("TUTORIAL", for: .normal)
+        tutorialButton.addTarget(self, action: #selector(tutorialButtonTapped), for: .touchUpInside)
+        tutorialButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Accessibility
+        tutorialButton.accessibilityLabel = "Tutorial"
+        tutorialButton.accessibilityHint = "Double-tap to learn how to use the app."
+        
+        // About Button
+        aboutButton = ShinyButton(type: .system)
+        aboutButton.setTitle("ABOUT", for: .normal)
+        aboutButton.addTarget(self, action: #selector(aboutButtonTapped), for: .touchUpInside)
+        aboutButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Accessibility
+        aboutButton.accessibilityLabel = "About"
+        aboutButton.accessibilityHint = "Double-tap to learn more about the app."
+        
+        view.addSubview(startButton)
+        view.addSubview(tutorialButton)
+        view.addSubview(aboutButton)
+    }
+    
+    func setupConstraints() {
+        setupInitialConstraints()
+    }
+    
+    func setupInitialConstraints() {
         NSLayoutConstraint.activate([
+            // Background Image View
             backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
-            backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-
-        // Initialize the Start button
-        startButton = UIButton(type: .system)
-        startButton.setTitle("START", for: .normal)
-        startButton.setTitleColor(.yellow, for: .normal)
-        startButton.backgroundColor = .black
-        startButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20) // Bold text
-        startButton.layer.cornerRadius = 10 // Rounded corners
-        startButton.clipsToBounds = true // Apply corner radius
-
-        startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
-        startButton.translatesAutoresizingMaskIntoConstraints = false
-
-        // Accessibility settings
-        startButton.accessibilityLabel = "Start"
-        startButton.accessibilityHint = "Double-tap to begin your relaxation journey."
-
-        // Add the start button to the view
-        view.addSubview(startButton)
-
-        // Initialize the scroll view and content view for instructions
-        scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        contentView = UIView()
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-
-        // Add scroll view and content view to the hierarchy
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-
-        // Set up constraints for the Start button
-        NSLayoutConstraint.activate([
-            startButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -120),
-            startButton.widthAnchor.constraint(equalToConstant: 120),
-            startButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
-
-        // Set up constraints for scroll view
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            scrollView.bottomAnchor.constraint(equalTo: startButton.topAnchor, constant: -20)
-        ])
-
-        // Set up constraints for content view
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
-        ])
-
-        // Add labels to content view
-        let titleLabel = UILabel()
-        titleLabel.text = "Welcome to RelaxApp!"
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 26)
-        titleLabel.textColor = .white
-        titleLabel.textAlignment = .center
-        titleLabel.numberOfLines = 0
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        let descriptionLabel = UILabel()
-        descriptionLabel.text = "This app helps you relax through simple interactions."
-        descriptionLabel.font = UIFont.systemFont(ofSize: 20)
-        descriptionLabel.textColor = .white
-        descriptionLabel.textAlignment = .center
-        descriptionLabel.numberOfLines = 0
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        let instructionsTitleLabel = UILabel()
-        instructionsTitleLabel.text = "Instructions:"
-        instructionsTitleLabel.font = UIFont.boldSystemFont(ofSize: 22)
-        instructionsTitleLabel.textColor = .white
-        instructionsTitleLabel.textAlignment = .center
-        instructionsTitleLabel.numberOfLines = 0
-        instructionsTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        // Create labels for each instruction
-        let instruction1Label = UILabel()
-        instruction1Label.text = "1. Press and hold the button on the next screen."
-        instruction1Label.font = UIFont.systemFont(ofSize: 18)
-        instruction1Label.textColor = .white
-        instruction1Label.numberOfLines = 0
-        instruction1Label.translatesAutoresizingMaskIntoConstraints = false
-
-        let instruction2Label = UILabel()
-        instruction2Label.text = "2. Release when you're ready to relax."
-        instruction2Label.font = UIFont.systemFont(ofSize: 18)
-        instruction2Label.textColor = .white
-        instruction2Label.numberOfLines = 0
-        instruction2Label.translatesAutoresizingMaskIntoConstraints = false
-
-        let instruction3Label = UILabel()
-        instruction3Label.text = "3. Enjoy the soothing sounds and visuals."
-        instruction3Label.font = UIFont.systemFont(ofSize: 18)
-        instruction3Label.textColor = .white
-        instruction3Label.numberOfLines = 0
-        instruction3Label.translatesAutoresizingMaskIntoConstraints = false
-
-        let startInstructionLabel = UILabel()
-        startInstructionLabel.text = "Press \"Start\" to begin your relaxation journey."
-        startInstructionLabel.font = UIFont.systemFont(ofSize: 20)
-        startInstructionLabel.textColor = .white
-        startInstructionLabel.textAlignment = .center
-        startInstructionLabel.numberOfLines = 0
-        startInstructionLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        // Add labels to content view
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(descriptionLabel)
-        contentView.addSubview(instructionsTitleLabel)
-        contentView.addSubview(instruction1Label)
-        contentView.addSubview(instruction2Label)
-        contentView.addSubview(instruction3Label)
-        contentView.addSubview(startInstructionLabel)
-
-        // Set up constraints for labels
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-
-            instructionsTitleLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
-            instructionsTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            instructionsTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-
-            instruction1Label.topAnchor.constraint(equalTo: instructionsTitleLabel.bottomAnchor, constant: 10),
-            instruction1Label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            instruction1Label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-
-            instruction2Label.topAnchor.constraint(equalTo: instruction1Label.bottomAnchor, constant: 5),
-            instruction2Label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            instruction2Label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-
-            instruction3Label.topAnchor.constraint(equalTo: instruction2Label.bottomAnchor, constant: 5),
-            instruction3Label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            instruction3Label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-
-            startInstructionLabel.topAnchor.constraint(equalTo: instruction3Label.bottomAnchor, constant: 20),
-            startInstructionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            startInstructionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            startInstructionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // Blur Effect View
+            blurEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            blurEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            blurEffectView.topAnchor.constraint(equalTo: view.topAnchor),
+            blurEffectView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // Text Label inside container (these don't change)
+            textLabel.topAnchor.constraint(equalTo: textContainerView.topAnchor, constant: calculateTextContainerPadding()),
+            textLabel.leadingAnchor.constraint(equalTo: textContainerView.leadingAnchor, constant: calculateTextContainerPadding()),
+            textLabel.trailingAnchor.constraint(equalTo: textContainerView.trailingAnchor, constant: -calculateTextContainerPadding()),
+            textLabel.bottomAnchor.constraint(equalTo: textContainerView.bottomAnchor, constant: -calculateTextContainerPadding())
         ])
     }
+}
 
-    @objc func startButtonTapped() {
-        let mainVC = MainInteractionViewController()
-        navigationController?.pushViewController(mainVC, animated: true)
+// MARK: - Responsive Layout
+private extension IntroductionViewController {
+    
+    func updateConstraintsForCurrentSize() {
+        let screenSize = view.bounds.size
+        let isCompact = traitCollection.verticalSizeClass == .compact
+        
+        // Remove existing responsive constraints
+        view.constraints.forEach { constraint in
+            if constraint.identifier?.hasPrefix("responsive_") == true {
+                constraint.isActive = false
+            }
+        }
+        
+        // Calculate responsive values
+        let buttonWidth = calculateButtonWidth(for: screenSize)
+        let buttonHeight = calculateButtonHeight(for: screenSize)
+        let buttonSpacing = calculateButtonSpacing(for: screenSize)
+        let buttonBottomMargin = calculateButtonBottomMargin(for: screenSize, isCompact: isCompact)
+        let textContainerMargin = calculateTextContainerMargin(for: screenSize)
+        let textContainerTopMargin = calculateTextContainerTopMargin(for: screenSize, isCompact: isCompact)
+        let textContainerBottomSpacing = calculateTextContainerBottomSpacing(for: screenSize)
+        
+        // Create new responsive constraints
+        let newConstraints = [
+            // Text Container
+            textContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: textContainerTopMargin),
+            textContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: textContainerMargin),
+            textContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -textContainerMargin),
+            textContainerView.bottomAnchor.constraint(lessThanOrEqualTo: startButton.topAnchor, constant: -textContainerBottomSpacing),
+            
+            // Start Button (left) - position based on left of center minus button width and spacing
+            startButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -(buttonWidth + buttonSpacing)),
+            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: buttonBottomMargin),
+            startButton.widthAnchor.constraint(equalToConstant: buttonWidth),
+            startButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            
+            // Tutorial Button (center) - exactly centered
+            tutorialButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            tutorialButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: buttonBottomMargin),
+            tutorialButton.widthAnchor.constraint(equalToConstant: buttonWidth),
+            tutorialButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            
+            // About Button (right) - position based on right of center plus button width and spacing
+            aboutButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: (buttonWidth + buttonSpacing)),
+            aboutButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: buttonBottomMargin),
+            aboutButton.widthAnchor.constraint(equalToConstant: buttonWidth),
+            aboutButton.heightAnchor.constraint(equalToConstant: buttonHeight)
+        ]
+        
+        // Set identifiers and activate
+        newConstraints.forEach { constraint in
+            constraint.identifier = "responsive_\(UUID().uuidString.prefix(8))"
+            constraint.isActive = true
+        }
     }
+    
+    // MARK: - Calculation Methods
+    
+    func calculateButtonWidth(for screenSize: CGSize) -> CGFloat {
+        let calculatedWidth = screenSize.width * Constants.buttonWidthMultiplier
+        return max(Constants.minButtonWidth, min(Constants.maxButtonWidth, calculatedWidth))
+    }
+    
+    func calculateButtonHeight(for screenSize: CGSize) -> CGFloat {
+        let calculatedHeight = screenSize.height * Constants.buttonHeightMultiplier
+        return max(Constants.minButtonHeight, min(Constants.maxButtonHeight, calculatedHeight))
+    }
+    
+    func calculateButtonSpacing(for screenSize: CGSize) -> CGFloat {
+        let calculatedSpacing = screenSize.width * Constants.buttonSpacingMultiplier
+        return max(Constants.minButtonSpacing, min(Constants.maxButtonSpacing, calculatedSpacing)) / 2 // Divide by 2 since we use half-spacing in each direction
+    }
+    
+    func calculateButtonBottomMargin(for screenSize: CGSize, isCompact: Bool) -> CGFloat {
+        let baseMargin = isCompact ? Constants.minButtonBottomMargin : Constants.minButtonBottomMargin * 2
+        return -max(baseMargin, Constants.minButtonBottomMargin)
+    }
+    
+    func calculateTextContainerMargin(for screenSize: CGSize) -> CGFloat {
+        let calculatedMargin = screenSize.width * Constants.textContainerHorizontalMarginMultiplier
+        return max(Constants.minTextContainerMargin, min(Constants.maxTextContainerMargin, calculatedMargin))
+    }
+    
+    func calculateTextContainerTopMargin(for screenSize: CGSize, isCompact: Bool) -> CGFloat {
+        let baseMargin = screenSize.height * Constants.textContainerTopMarginMultiplier
+        let calculatedMargin = isCompact ? baseMargin * 0.5 : baseMargin
+        return max(Constants.minTextContainerTopMargin, min(Constants.maxTextContainerTopMargin, calculatedMargin))
+    }
+    
+    func calculateTextContainerBottomSpacing(for screenSize: CGSize) -> CGFloat {
+        let calculatedSpacing = screenSize.height * Constants.textContainerBottomSpacingMultiplier
+        return max(Constants.minTextContainerBottomSpacing, calculatedSpacing)
+    }
+    
+    func calculateTextContainerPadding() -> CGFloat {
+        let screenWidth = view.bounds.width
+        let calculatedPadding = screenWidth * Constants.textContainerPaddingMultiplier
+        return max(Constants.minTextContainerPadding, min(Constants.maxTextContainerPadding, calculatedPadding))
+    }
+}
 
+// MARK: - Background Animation
+private extension IntroductionViewController {
+    
     func startBackgroundImageRotation() {
-        guard !UIAccessibility.isReduceMotionEnabled else {
-            // Do not start the animation if Reduce Motion is enabled
+        guard !UIAccessibility.isReduceMotionEnabled,
+              backgroundImageView.layer.animation(forKey: Constants.rotationAnimationKey) == nil else {
             return
         }
-
-        // Check if the animation is already added
-        if backgroundImageView.layer.animation(forKey: "rotationAnimation") == nil {
-            // Create rotation animation
-            let rotation = CABasicAnimation(keyPath: "transform.rotation")
-            rotation.fromValue = 0
-            rotation.toValue = CGFloat.pi * 2 // 360 degrees in radians
-            rotation.duration = 30.0 // Adjust duration for rotation speed
-            rotation.repeatCount = .infinity
-
-            // Add animation to the background image view's layer
-            backgroundImageView.layer.add(rotation, forKey: "rotationAnimation")
-        }
+        
+        let rotation = CABasicAnimation(keyPath: "transform.rotation")
+        rotation.fromValue = 0
+        rotation.toValue = CGFloat.pi * 2
+        rotation.duration = Constants.rotationDuration
+        rotation.repeatCount = .infinity
+        
+        backgroundImageView.layer.add(rotation, forKey: Constants.rotationAnimationKey)
     }
-
+    
     func stopBackgroundImageRotation() {
-        // Remove the rotation animation
-        backgroundImageView.layer.removeAnimation(forKey: "rotationAnimation")
+        backgroundImageView.layer.removeAnimation(forKey: Constants.rotationAnimationKey)
     }
+}
 
+// MARK: - Accessibility
+private extension IntroductionViewController {
+    
     func observeAccessibilityChanges() {
         NotificationCenter.default.addObserver(
             self,
@@ -385,21 +363,12 @@ class IntroductionViewController: UIViewController {
             object: nil
         )
     }
-
+    
     @objc func accessibilitySettingsChanged() {
         if UIAccessibility.isReduceMotionEnabled {
-            // Remove animation
             stopBackgroundImageRotation()
         } else {
-            // Start animation
             startBackgroundImageRotation()
         }
     }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIAccessibility.reduceMotionStatusDidChangeNotification, object: nil)
-    }
 }
-
-
-

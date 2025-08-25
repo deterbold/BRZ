@@ -148,7 +148,7 @@
 				DEVELOPMENT_TEAM = NES4E5L6E8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BRZ/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BRZ;
+				INFOPLIST_KEY_CFBundleDisplayName = Chimney;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -161,7 +161,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = software.ridiculous.BRZ;
+				PRODUCT_BUNDLE_IDENTIFIER = software.ridiculous.brz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -183,7 +183,7 @@
 				DEVELOPMENT_TEAM = NES4E5L6E8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BRZ/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BRZ;
+				INFOPLIST_KEY_CFBundleDisplayName = Chimney;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -196,7 +196,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = software.ridiculous.BRZ;
+				PRODUCT_BUNDLE_IDENTIFIER = software.ridiculous.brz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
