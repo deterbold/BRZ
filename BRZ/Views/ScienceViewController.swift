@@ -12,6 +12,7 @@ class ScienceViewController: UIViewController {
     // MARK: - UI Components
     private var contentContainerView: UIView!
     private var scienceLabel: UILabel!
+    private var researchButton: UIButton!
     
     // MARK: - Properties
     private var fontSizeAdjusted = false
@@ -27,6 +28,9 @@ class ScienceViewController: UIViewController {
         static let initialFontSize: CGFloat = 100
         static let minFontSize: CGFloat = 12
         static let fontSizeDecrement: CGFloat = 1
+        static let buttonHeight: CGFloat = 44
+        static let buttonSpacing: CGFloat = 16
+        static let researchURL = "https://www.frontiersin.org/journals/human-neuroscience/articles/10.3389/fnhum.2018.00353/full?adb_sid=bd73ee3b-a36f-4585-8d3e-967cba74f006"
         
         static let aboutText = """
         When we worry, an immense tower of negativity and pain builds inside us.
@@ -64,6 +68,7 @@ private extension ScienceViewController {
         setupBackgroundColor()
         setupContentContainer()
         setupScienceLabel()
+        setupResearchButton()
         setupConstraints()
     }
     
@@ -91,6 +96,21 @@ private extension ScienceViewController {
         contentContainerView.addSubview(scienceLabel)
     }
     
+    func setupResearchButton() {
+        researchButton = UIButton(type: .system)
+        researchButton.setTitle("Research", for: .normal)
+        researchButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        researchButton.setTitleColor(.black, for: .normal)
+        researchButton.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        researchButton.layer.cornerRadius = 8
+        researchButton.layer.borderWidth = 1
+        researchButton.layer.borderColor = UIColor.black.withAlphaComponent(0.3).cgColor
+        researchButton.addTarget(self, action: #selector(researchButtonTapped), for: .touchUpInside)
+        researchButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentContainerView.addSubview(researchButton)
+    }
+    
     func setupNavigationBar() {
         title = "About"
         navigationController?.setNavigationBarHidden(false, animated: true)
@@ -115,9 +135,15 @@ private extension ScienceViewController {
             
             // Science Label inside container
             scienceLabel.topAnchor.constraint(equalTo: contentContainerView.topAnchor, constant: Constants.containerPadding),
-            scienceLabel.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor, constant: -Constants.containerPadding),
             scienceLabel.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: Constants.containerPadding),
-            scienceLabel.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -Constants.containerPadding)
+            scienceLabel.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -Constants.containerPadding),
+            scienceLabel.bottomAnchor.constraint(equalTo: researchButton.topAnchor, constant: -Constants.buttonSpacing),
+            
+            // Research Button
+            researchButton.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: Constants.containerPadding),
+            researchButton.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -Constants.containerPadding),
+            researchButton.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor, constant: -Constants.containerPadding),
+            researchButton.heightAnchor.constraint(equalToConstant: Constants.buttonHeight)
         ])
     }
 }
@@ -169,5 +195,14 @@ private extension ScienceViewController {
         )
         
         return textRect.height <= size.height
+    }
+}
+
+// MARK: - Actions
+private extension ScienceViewController {
+    
+    @objc func researchButtonTapped() {
+        guard let url = URL(string: Constants.researchURL) else { return }
+        UIApplication.shared.open(url)
     }
 }
