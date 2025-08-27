@@ -35,11 +35,9 @@ class ScienceViewController: UIViewController {
         static let aboutText = """
         When we worry, an immense tower of negativity and pain builds inside us.
         
-        Studies have shown that controlled breathing and relaxation can help change your inner and outer mood, and make you live happier with yourself.
+        Chimney of Wisdom is inspired by the idea that controlling how to breath can have beneficial effects on people. If you want to read the research backing this idea, push the "Research" button.
         
-        That's why we've developed the Chimney of Wisdom meditation aid. When you regulate your breathing with our app, you gain control over your fears and anxieties.
-        
-        The Chimney of Wisdom will help you burn away your worries, and you will see them vanish in ashes, while you get back to your best life, better.
+        With Chimney of Wisdom we want to visualize how worries can be burnt away, vanish in ashes, and metaphorically disappear.
         """
     }
     

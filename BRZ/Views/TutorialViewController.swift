@@ -67,13 +67,13 @@ class TutorialViewController: UIViewController {
         // Content
         static let titleText = "Tutorial"
         static let step1Title = "1. Tap & Hold to Inhale"
-        static let step1Description = "Press and hold anywhere on the screen to activate the Chimney of Wisdom. Watch as your breath fills the space above, representing your focus and intention."
+        static let step1Description = "Press and hold anywhere on the screen to activate the Chimney of Wisdom. Watch as your breath fills the space above."
         
         static let step2Title = "2. Release to Exhale"
-        static let step2Description = "Release your finger to exhale slowly. Feel the release as you let go of tension and stress, allowing calm to flow through you."
+        static let step2Description = "Release your finger to exhale slowly.."
         
         static let step3Title = "3. Shake to Clear Ashes"
-        static let step3Description = "Shake your device to clear the \"Ashes of Worry\" from the top of your chimney. This represents releasing negative thoughts and starting fresh."
+        static let step3Description = "Shake your device to clear the \"Ashes of Worry\" from the top of your chimney."
     }
     
     // MARK: - Lifecycle
