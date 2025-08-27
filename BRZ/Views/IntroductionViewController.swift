@@ -59,14 +59,13 @@ class IntroductionViewController: UIViewController {
         static let rotationAnimationKey = "rotationAnimation"
         
         static let instructionText = """
-        Welcome to Chimney of Wisdom, your personal breathing and relaxation companion.
+        Welcome to Chimney of Wisdom, your personal breathing companion.
         
-        • Tap and hold anywhere on the screen to begin your breathing exercise
+        • Tap and hold anywhere on the screen as you take a deep breath
         • Watch the rectangles respond to your touch
         • Shake your device to add or remove elements
         • Let the gentle sounds guide your practice
         
-        Find a comfortable position and prepare to breathe mindfully.
         """
     }
     
